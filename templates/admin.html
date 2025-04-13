@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <title>门店管理后台</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body class="container py-5">
+    <h2>门店管理后台</h2>
+    <a href="/add" class="btn btn-success mb-3">➕ 添加新门店</a>
+
+    <h4>📥 批量导入门店（TXT / Excel）</h4>
+    <form method="post" action="/import" enctype="multipart/form-data" class="mb-4">
+        <input type="file" name="file" class="form-control mb-2" accept=".txt,.xlsx" required>
+        <button type="submit" class="btn btn-secondary">上传并导入</button>
+    </form>
+
+    <table class="table table-bordered">
+        <thead>
+            <tr>
+                <th>店铺负责人</th><th>地址</th><th>邮编</th><th>价格</th><th>营业</th><th>操作</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for s in stores %}
+            <tr>
+                <td>{{ s[1] }}</td><td>{{ s[2] }}</td><td>{{ s[3] }}</td><td>{{ s[4] }}</td>
+                <td>{{ "✅" if s[5]==1 else "❌" }}</td>
+                <td>
+                    <a href="/edit/{{ s[0] }}" class="btn btn-sm btn-primary">编辑</a>
+                    <a href="/delete/{{ s[0] }}" class="btn btn-sm btn-danger" onclick="return confirm('确认删除？')">删除</a>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</body>
+</html>
