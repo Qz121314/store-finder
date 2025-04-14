@@ -69,10 +69,34 @@ def index():
         results = get_nearest_stores(user_zip)
     return render_template("index.html", results=results, user_zip=user_zip)
 
-@app.route("/admin")
+@app.route("/admin", methods=["GET", "POST"])
 def admin():
-    stores = get_all_stores()
-    return render_template("admin.html", stores=stores)
+    address_kw = request.form.get("address_kw", "").strip()
+    zip_code = request.form.get("zip_code", "").strip()
+    owner_kw = request.form.get("owner_kw", "").strip()
+
+    query = "SELECT id, owner, address, zip_code, price, open_status, lat, lon FROM stores WHERE 1=1"
+    params = []
+
+    if address_kw:
+        query += " AND address LIKE ?"
+        params.append(f"%{address_kw}%")
+    if zip_code:
+        query += " AND zip_code = ?"
+        params.append(zip_code)
+    if owner_kw:
+        query += " AND owner LIKE ?"
+        params.append(f"%{owner_kw}%")
+
+    conn = sqlite3.connect(db_path)
+    cur = conn.cursor()
+    cur.execute(query, params)
+    stores = cur.fetchall()
+    conn.close()
+
+    return render_template("admin.html", stores=stores,
+                           address_kw=address_kw, zip_code=zip_code, owner_kw=owner_kw)
+
 
 @app.route("/add", methods=["GET", "POST"])
 def add_store():
@@ -168,3 +192,4 @@ def open_browser():
 if __name__ == '__main__':
     threading.Timer(1.0, open_browser).start()
     app.run(debug=False)
+
